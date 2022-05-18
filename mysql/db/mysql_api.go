@@ -23,7 +23,7 @@ func SpecifyDbCurd(client string) *Curd {
 	}
 }
 
-// Save rowsAffected:返回插入记录的条数,err:返回error
+// Save 插入数据，rowsAffected:返回插入记录的条数
 func (c Curd) Save(table string, data interface{}) (rowsAffected int64, err error) {
 	tx := c.db
 	if table != "" {
@@ -33,7 +33,7 @@ func (c Curd) Save(table string, data interface{}) (rowsAffected int64, err erro
 	return result.RowsAffected, result.Error
 }
 
-// CreateInBatches rowsAffected:返回插入记录的条数,err:返回error
+// CreateInBatches 批量插入数据 rowsAffected:返回插入记录的条数
 func (c Curd) CreateInBatches(table string, data interface{}, batchSize int) (rowsAffected int64, err error) {
 	tx := c.db
 	if table != "" {
@@ -48,7 +48,7 @@ func (c Curd) FindById(table string, id int, resp interface{}) error {
 	return c.db.Table(table).Where("id = ?", id).Scan(resp).Error
 }
 
-// FindList err:返回error
+// FindList 查询列表
 func (c Curd) FindList(table string, resp interface{}, params QueryParams) error {
 	db := c.db.Table(table)
 	for _, v := range params.Query {
@@ -69,7 +69,7 @@ func (c Curd) FindList(table string, resp interface{}, params QueryParams) error
 	return db.Scan(resp).Error
 }
 
-// FindFirst err:返回error
+// FindFirst 查询第一条数据
 func (c Curd) FindFirst(table string, query []string, resp interface{}) error {
 	tx := c.db.Table(table)
 	for _, v := range query {
@@ -78,7 +78,7 @@ func (c Curd) FindFirst(table string, query []string, resp interface{}) error {
 	return tx.First(resp).Error
 }
 
-// FindLast err:返回error
+// FindLast 查询最后一条数据
 func (c Curd) FindLast(table string, query []string, resp interface{}) error {
 	tx := c.db.Table(table)
 	for _, v := range query {
@@ -87,7 +87,7 @@ func (c Curd) FindLast(table string, query []string, resp interface{}) error {
 	return tx.Last(resp).Error
 }
 
-// Update err:返回error
+// Update 更新数据
 func (c Curd) Update(table string, params UpdateParams) (rowsAffected int64, err error) {
 	tx := c.db.Table(table)
 	for _, v := range params.Query {
@@ -99,7 +99,7 @@ func (c Curd) Update(table string, params UpdateParams) (rowsAffected int64, err
 	return tx.RowsAffected, tx.Error
 }
 
-// Delete err:返回error
+// Delete 删除数据
 func (c Curd) Delete(table string, params DeleteParams) (rowsAffected int64, err error) {
 	tx := c.db.Table(table)
 	if len(params.Query) == 0 {
