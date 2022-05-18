@@ -69,6 +69,22 @@ func Test_FindList(t *testing.T) {
 	fmt.Println("数据：", userList, err)
 }
 
+func Test_FindCount(t *testing.T) {
+	data := make([]string, 0)
+	data = append(data, "id > 1", "age > 2")
+	var (
+		params = db.QueryParams{
+			Query: data,
+			Sort:  "age desc",
+			//Group:  "phone",
+		}
+		count int64
+		err   error
+	)
+	count, err = db.DbCurd().FindCount("t_user", params)
+	fmt.Println("数据：", count, err)
+}
+
 func Test_FindFirst(t *testing.T) {
 	data := make([]string, 0)
 	data = append(data, "id >= 4")

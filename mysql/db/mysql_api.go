@@ -69,6 +69,19 @@ func (c Curd) FindList(table string, resp interface{}, params QueryParams) error
 	return db.Scan(resp).Error
 }
 
+// FindCount 查询总数
+func (c Curd) FindCount(table string, params QueryParams) (count int64, err error) {
+	db := c.db.Table(table)
+	for _, v := range params.Query {
+		db = db.Where(v)
+	}
+	if params.Group != "" {
+		db = db.Group(params.Group)
+	}
+	err = db.Count(&count).Error
+	return
+}
+
 // FindFirst 查询第一条数据
 func (c Curd) FindFirst(table string, query []string, resp interface{}) error {
 	tx := c.db.Table(table)
