@@ -1,6 +1,7 @@
 package test
 
 import (
+	"errors"
 	"fmt"
 	"github.com/yueja/cf-gorm/mysql/db"
 	"testing"
@@ -132,4 +133,43 @@ func Test_Delete(t *testing.T) {
 	)
 	rowsAffected, err = db.DbCurd().Delete("t_user", params)
 	fmt.Println("数据", rowsAffected, err)
+}
+
+func Test_Tx(t *testing.T) {
+	var (
+		data  = make([]string, 0)
+		data1 = make([]string, 0)
+	)
+	data = append(data, "id = 10")
+	data1 = append(data1, "id = 12")
+	var (
+		rowsAffected int64
+		user         User
+		params       = db.DeleteParams{
+			Query: data,
+			Model: &user,
+		}
+		params1 = db.DeleteParams{
+			Query: data1,
+			Model: &user,
+		}
+	)
+	err := db.WithTransaction(func(tx *db.Curd) (err error) {
+		rowsAffected, err = tx.Delete("t_user", params)
+		err = errors.New("测试错误")
+		if err != nil {
+			return err
+		}
+		fmt.Println("数据", rowsAffected, err)
+
+		rowsAffected, err = tx.Delete("t_user", params1)
+		fmt.Println("数据1", rowsAffected, err)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		fmt.Println(err)
+	}
 }
