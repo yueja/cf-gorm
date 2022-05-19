@@ -8,10 +8,11 @@ import (
 )
 
 type User struct {
-	Id    int    `json:"id"`
-	Name  string `json:"name"`
-	Age   int    `json:"age"`
-	Phone string `json:"phone"`
+	Id      int    `json:"id"`
+	Name    string `json:"name"`
+	Age     int    `json:"age"`
+	Phone   string `json:"phone"`
+	Address string `json:"address"`
 }
 
 func Test_Save(t *testing.T) {
@@ -24,13 +25,33 @@ func Test_Save(t *testing.T) {
 	fmt.Println("数据：", user, rowsAffected, err)
 }
 
-func Test_Save1(t *testing.T) {
+func Test_Save2(t *testing.T) {
 	user := []User{{Name: "张三", Age: 12, Phone: "11111"}, {Name: "李四", Age: 21, Phone: "22222"}}
 	var (
 		rowsAffected int64
 		err          error
 	)
 	rowsAffected, err = db.SpecifyDbCurd("default").Save("t_user", user)
+	fmt.Println("数据：", user, rowsAffected, err)
+}
+
+func Test_Create(t *testing.T) {
+	user := make([]map[string]interface{}, 0)
+	user = append(user, map[string]interface{}{
+		"name":  "张三001",
+		"age":   12,
+		"phone": "1111",
+	})
+	user = append(user, map[string]interface{}{
+		"name":  "张三002",
+		"age":   15,
+		"phone": "2222",
+	})
+	var (
+		rowsAffected int64
+		err          error
+	)
+	rowsAffected, err = db.DbCurd().Create("t_user", user)
 	fmt.Println("数据：", user, rowsAffected, err)
 }
 
@@ -59,10 +80,11 @@ func Test_FindList(t *testing.T) {
 	var (
 		userList []User
 		params   = db.QueryParams{
-			Query:  data,
-			Offset: 0,
-			Limit:  0,
-			Sort:   "age desc",
+			SelectFiled: []string{"name", "age"},
+			Query:       data,
+			Offset:      0,
+			Limit:       2,
+			Sort:        "age desc",
 			//Group:  "phone",
 		}
 	)
@@ -90,7 +112,7 @@ func Test_FindFirst(t *testing.T) {
 	data := make([]string, 0)
 	data = append(data, "id >= 4")
 	var user User
-	err := db.DbCurd().FindFirst("t_user", data, &user)
+	err := db.DbCurd().FindFirst("t_user", db.QueryParams{Query: data}, &user)
 	fmt.Println("数据：", user, err)
 }
 
@@ -98,7 +120,7 @@ func Test_FindLast(t *testing.T) {
 	data := make([]string, 0)
 	data = append(data, "id <10")
 	var user User
-	err := db.DbCurd().FindLast("t_user", data, &user)
+	err := db.DbCurd().FindLast("t_user", db.QueryParams{Query: data}, &user)
 	fmt.Println("数据：", user, err)
 }
 
@@ -172,4 +194,66 @@ func Test_Tx(t *testing.T) {
 	if err != nil {
 		fmt.Println(err)
 	}
+}
+
+func Test_UpsertFiledDefault(t *testing.T) {
+	var (
+		rowsAffected int64
+		err          error
+		user         = User{
+			Id:    18,
+			Name:  "哈哈哈哈001",
+			Age:   21,
+			Phone: "1320",
+		}
+		params = db.UpsertFiledDefaultParams{
+			ConflictFiled: []string{"name", "age"},
+			Update: map[string]interface{}{
+				"name": "我是更新名字",
+				"age":  22,
+			},
+			Model: &user,
+		}
+	)
+	rowsAffected, err = db.DbCurd().UpsertFiledDefault("t_user", params)
+	fmt.Println("数据", rowsAffected, user, err)
+}
+
+func Test_UpsertFiled(t *testing.T) {
+	var (
+		rowsAffected int64
+		err          error
+		user         = User{
+			Id:    12,
+			Name:  "我是更新名字",
+			Age:   21,
+			Phone: "666",
+		}
+		params = db.UpsertParams{
+			ConflictFiled: []string{"name", "age"},
+			UpdateFiled:   []string{"name", "age", "phone"},
+			Model:         &user,
+		}
+	)
+	rowsAffected, err = db.DbCurd().UpsertFiled("t_user", params)
+	fmt.Println("数据", rowsAffected, user, err)
+}
+
+func Test_Upsert(t *testing.T) {
+	var (
+		rowsAffected int64
+		err          error
+		user         = User{
+			Name:    "我是更新名字",
+			Age:     21,
+			Phone:   "99",
+			Address: "36",
+		}
+		params = db.UpsertParams{
+			ConflictFiled: []string{"name", "age"},
+			Model:         &user,
+		}
+	)
+	rowsAffected, err = db.DbCurd().Upsert("t_user", params)
+	fmt.Println("数据", rowsAffected, user, err)
 }

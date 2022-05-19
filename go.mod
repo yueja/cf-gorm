@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	gorm.io/driver/mysql v1.3.3
-	gorm.io/gorm v1.23.1
+	gorm.io/gorm v1.23.5
 )
 
 require (
